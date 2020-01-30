@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <!-- <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script> -->
+  </head>
+  <body>
+    <div id="blockWindow">
+    	<div id="admin" style="display:none;">
+    		<input id="login" type="text" placeholder="Логин" style="width: 120px;text-align: left;" value="">
+    		<input id="password" type="text" placeholder="Пароль" style="width: 120px;text-align: left;" value="">
+    		<button id="ok" type="button" style="cursor:pointer; border-radius:9px; padding:6px;">Авторизация</button>
+    	</div>
+		<div><input id="userName" type="text" placeholder="Имя" style="width: 120px;text-align: left;" value=""></div>
+		<div><textarea id="feedBack" placeholder="Оставьте Ваш отзыв"></textarea></div>
+		<div><button type="button" onclick="return SendFeedBack(this);" style="cursor:pointer; border-radius:9px; padding:6px;">Отправить</button></div>
+		<div id="feedBacks"></div>
+    </div>
+    <style>
+		.divBlock {
+		  border: 1px solid;
+		  margin-top: 5px;
+		  padding-left: 15px;
+		}
+	</style>
+    <script type="text/javascript">
+    	var str = document.location.search;
+			if (str.indexOf("admin=1") != -1) { 
+			    document.getElementById('admin').style.display = 'block';
+			} else {
+				document.getElementById('admin').style.display = 'none';
+			}
+    	var flag = 0;
+
+    	ok.onclick = function() { // Клик по кнопке "Авторизация" 
+    		CheckAdmin();
+		    if (flag == 1) {
+		    	var demoClasses = document.querySelectorAll('#deleteElem');
+				demoClasses.forEach(element => {
+				    element['style']['display'] = 'block'; // Показать кнопки "Удалить" на отзывах
+				});
+		    }
+		};
+
+    	function CheckAdmin() { // Проверка логина и пароля админа
+			let	loginAdm = document.getElementById('login').value;;
+			let passAdm = document.getElementById('password').value;
+			if (loginAdm != '' && passAdm != '') {
+				const request4 = new XMLHttpRequest();
+				const url = "http://swetab34.beget.tech/form1/form1.php?do=checkAdmin";
+				const params = "login=" + loginAdm+ "&password=" + passAdm;
+				request4.open("POST", url, false);
+				request4.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				request4.addEventListener("readystatechange", () => {
+				    if(request4.readyState === 4 && request4.status === 200) {
+						var response1 = JSON.parse(request4.responseText);
+						response1 = response1['response'];
+						if (response1 == 'ok') {
+							flag = 1;
+						} 
+				    }
+				});
+				request4.send(params);
+			} 
+		}
+
+		// Загрузка отзывов из БД
+    	const request1 = new XMLHttpRequest();
+		const url1 = "http://swetab34.beget.tech/form1/form1.php?do=loadData";
+		request1.open("POST", url1, false); 
+		request1.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		request1.addEventListener("readystatechange", () => {
+		    if(request1.readyState === 4 && request1.status === 200 && request1.responseText != '') { 
+				var allData = JSON.parse(request1.responseText);
+				var arrFeedBacks = allData['arr'];
+				arrFeedBacks.forEach(function(item, i, arrFeedBacks) {
+					var thisDate = new Date(item['date']*1000);
+					addElement(item['id'], thisDate, item['username'], item['feedback']);
+				});
+		    } 
+		});
+		request1.send();
+
+		function addElement(curId, curDate, curUsername, curFeedback) { // Добавляет отзывы из БД на страницу
+			var curMonth = curDate.getMonth()+1;
+			curMonth = curMonth.toString();
+			if (!curMonth[1]){
+				curMonth = '0'+curMonth;  
+			}
+			var curDay = curDate.getDate();
+			curDay = curDay.toString();
+			if (!curDay[1]){
+				curDay 	 = '0'+curDay;  
+			}
+			var curHour = curDate.getHours();
+			curHour = curHour.toString();
+			if (!curHour[1]){
+				curHour = '0'+curHour;  
+			}
+			var curMinutes = curDate.getMinutes();
+			curMinutes = curMinutes.toString();
+			if (!curMinutes[1]){
+				curMinutes = '0'+curMinutes;  
+			}
+			var curSeconds = curDate.getSeconds();
+			curSeconds = curSeconds.toString();
+			if (!curSeconds[1]){
+				curSeconds = '0'+curSeconds;  
+			}
+			curDate = curDate.getFullYear()+'-'+curMonth+'-'+curDay+' '+curHour+':'+curMinutes+':'+curSeconds;
+			let divElem = document.createElement('div');
+			divElem.className = "divBlock";
+			divElem.id = curId;
+			divElem.innerHTML = '<h3>'+curUsername+'</h3><span>'+curDate+'</span><p>'+curFeedback+'</p><span id="deleteElem" style="color: red;cursor:pointer; display:'+ (flag == 1 ? 'block' : 'none ') + ';">Удалить отзыв</span>'; 
+		  	document.getElementById('feedBacks').prepend(divElem);
+
+		  	divElem.lastElementChild.onclick = function() { // Клик по кнопке "Удалить отзыв"
+		  		CheckAdmin(); // Запускаем проверку админа
+		  		if (flag == 1) {
+		  			divElem.remove();
+					const request3 = new XMLHttpRequest();
+					const  url3 = "http://swetab34.beget.tech/form1/form1.php?do=deleteData";
+					const params3 = "id=" + curId;
+					request3.open("POST", url3, false);
+					request3.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					request3.addEventListener("readystatechange", () => {
+					    if(request3.readyState === 4 && request3.status === 200) {  
+							//console.log(request3.responseText);
+					    }
+					});
+					request3.send(params3);
+		  		}
+			};
+		}
+
+    	function SendFeedBack(Element) { // Добавляет новый отзыв на страницу и в БД
+			let	userName = document.getElementById('userName').value;;
+			let feedBack = document.getElementById('feedBack').value;
+			if (userName != '' && feedBack != '') {
+				const request = new XMLHttpRequest();
+				const url = "http://swetab34.beget.tech/form1/form1.php?do=saveData";
+				const params = "userName=" + userName+ "&feedBack=" + feedBack;
+				request.open("POST", url, false);
+				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				request.addEventListener("readystatechange", () => {
+				    if(request.readyState === 4 && request.status === 200) {       
+						var id_record_BD = JSON.parse(request.responseText);
+						id_record_BD = id_record_BD['id'];
+						var nowDate = new Date();
+						addElement(id_record_BD, nowDate, userName, feedBack);
+				    }
+				}); 
+				request.send(params);
+			} 
+		}
+    </script>
+  </body>
+</html>
