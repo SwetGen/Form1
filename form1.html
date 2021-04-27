@@ -46,32 +46,32 @@
 			let	loginAdm = document.getElementById('login').value;;
 			let passAdm = document.getElementById('password').value;
 			if (loginAdm != '' && passAdm != '') {
-				const request4 = new XMLHttpRequest();
+				const checkAcc = new XMLHttpRequest();
 				const url = "http://swetab34.beget.tech/form1/form1.php?do=checkAdmin";
 				const params = "login=" + loginAdm+ "&password=" + passAdm;
-				request4.open("POST", url, false);
-				request4.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				request4.addEventListener("readystatechange", () => {
-				    if(request4.readyState === 4 && request4.status === 200) {
-						var response1 = JSON.parse(request4.responseText);
+				checkAcc.open("POST", url, false);
+				checkAcc.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				checkAcc.addEventListener("readystatechange", () => {
+				    if(checkAcc.readyState === 4 && checkAcc.status === 200) {
+						var response1 = JSON.parse(checkAcc.responseText);
 						response1 = response1['response'];
 						if (response1 == 'ok') {
 							flag = 1;
 						} 
 				    }
 				});
-				request4.send(params);
+				checkAcc.send(params);
 			} 
 		}
 
 		// Загрузка отзывов из БД
-    	const request1 = new XMLHttpRequest();
+    		const allFeedBacks = new XMLHttpRequest();
 		const url1 = "http://swetab34.beget.tech/form1/form1.php?do=loadData";
-		request1.open("POST", url1, false); 
-		request1.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		request1.addEventListener("readystatechange", () => {
-		    if(request1.readyState === 4 && request1.status === 200 && request1.responseText != '') { 
-				var allData = JSON.parse(request1.responseText);
+		allFeedBacks.open("POST", url1, false); 
+		allFeedBacks.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		allFeedBacks.addEventListener("readystatechange", () => {
+		    if(allFeedBacks.readyState === 4 && allFeedBacks.status === 200 && allFeedBacks.responseText != '') { 
+				var allData = JSON.parse(allFeedBacks.responseText);
 				var arrFeedBacks = allData['arr'];
 				arrFeedBacks.forEach(function(item, i, arrFeedBacks) {
 					var thisDate = new Date(item['date']*1000);
@@ -79,7 +79,7 @@
 				});
 		    } 
 		});
-		request1.send();
+		allFeedBacks.send();
 
 		function addElement(curId, curDate, curUsername, curFeedback) { // Добавляет отзывы из БД на страницу
 			var curMonth = curDate.getMonth()+1;
@@ -118,17 +118,17 @@
 		  		CheckAdmin(); // Запускаем проверку админа
 		  		if (flag == 1) {
 		  			divElem.remove();
-					const request3 = new XMLHttpRequest();
+					const deleteFeedBack = new XMLHttpRequest();
 					const  url3 = "http://swetab34.beget.tech/form1/form1.php?do=deleteData";
 					const params3 = "id=" + curId;
-					request3.open("POST", url3, false);
-					request3.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-					request3.addEventListener("readystatechange", () => {
-					    if(request3.readyState === 4 && request3.status === 200) {  
-							//console.log(request3.responseText);
+					deleteFeedBack.open("POST", url3, false);
+					deleteFeedBack.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					deleteFeedBack.addEventListener("readystatechange", () => {
+					    if(deleteFeedBack.readyState === 4 && deleteFeedBack.status === 200) {  
+							//console.log(deleteFeedBack.responseText);
 					    }
 					});
-					request3.send(params3);
+					deleteFeedBack.send(params3);
 		  		}
 			};
 		}
@@ -137,20 +137,20 @@
 			let userName = document.getElementById('userName').value;;
 			let feedBack = document.getElementById('feedBack').value;
 			if (userName != '' && feedBack != '') {
-				const request = new XMLHttpRequest();
+				const newFeedBack = new XMLHttpRequest();
 				const url = "http://swetab34.beget.tech/form1/form1.php?do=saveData";
 				const params = "userName=" + userName+ "&feedBack=" + feedBack;
-				request.open("POST", url, false);
-				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				request.addEventListener("readystatechange", () => {
-				    if(request.readyState === 4 && request.status === 200) {       
-						var idRecordBD = JSON.parse(request.responseText);
+				newFeedBack.open("POST", url, false);
+				newFeedBack.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				newFeedBack.addEventListener("readystatechange", () => {
+				    if(newFeedBack.readyState === 4 && newFeedBack.status === 200) {       
+						var idRecordBD = JSON.parse(newFeedBack.responseText);
 						idRecordBD = idRecordBD['id'];
 						var nowDate = new Date();
 						addElement(idRecordBD, nowDate, userName, feedBack);
 				    }
 				}); 
-				request.send(params);
+				newFeedBack.send(params);
 			} 
 		}
     </script>
