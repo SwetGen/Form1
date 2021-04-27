@@ -134,7 +134,7 @@
 		}
 
     	function SendFeedBack(Element) { // Добавляет новый отзыв на страницу и в БД
-			let	userName = document.getElementById('userName').value;;
+			let userName = document.getElementById('userName').value;;
 			let feedBack = document.getElementById('feedBack').value;
 			if (userName != '' && feedBack != '') {
 				const request = new XMLHttpRequest();
@@ -144,10 +144,10 @@
 				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				request.addEventListener("readystatechange", () => {
 				    if(request.readyState === 4 && request.status === 200) {       
-						var id_record_BD = JSON.parse(request.responseText);
-						id_record_BD = id_record_BD['id'];
+						var idRecordBD = JSON.parse(request.responseText);
+						idRecordBD = idRecordBD['id'];
 						var nowDate = new Date();
-						addElement(id_record_BD, nowDate, userName, feedBack);
+						addElement(idRecordBD, nowDate, userName, feedBack);
 				    }
 				}); 
 				request.send(params);
